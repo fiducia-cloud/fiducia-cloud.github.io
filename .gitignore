@@ -16,3 +16,6 @@ pnpm-debug.log*
 !.env.example
 # macOS
 .DS_Store
+
+# Scratch / git worktrees (tmp/worktrees/*)
+tmp/
