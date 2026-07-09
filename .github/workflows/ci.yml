@@ -59,7 +59,7 @@ jobs:
         with:
           node-version: "22"
       - id: chrome
-        uses: browser-actions/setup-chrome@v1
+        uses: browser-actions/setup-chrome@v2
       - run: npm ci
         working-directory: repo
       - name: browser tests
