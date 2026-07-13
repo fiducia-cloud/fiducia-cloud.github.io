@@ -24,7 +24,7 @@ RUN test "${#INTERFACES_REF}" -eq 40 \
     && git -C fiducia-test-config checkout --quiet --detach FETCH_HEAD \
     && test "$(git -C fiducia-test-config rev-parse HEAD)" = "$TEST_CONFIG_REF"
 
-WORKDIR /build/fiducia-ui.web
+WORKDIR /build/fiducia-marketing.web
 COPY package*.json ./
 RUN npm ci --ignore-scripts
 COPY . .
@@ -33,7 +33,7 @@ RUN PUBLIC_BASE="$PUBLIC_BASE" npm run build
 
 FROM nginx:1.31-alpine@sha256:54f2a904c251d5a34adf545a72d32515a15e08418dae0266e23be2e18c66fefa
 COPY nginx.conf /etc/nginx/nginx.conf
-COPY --from=build --chown=nginx:nginx /build/fiducia-ui.web/dist /srv/www
+COPY --from=build --chown=nginx:nginx /build/fiducia-marketing.web/dist /srv/www
 USER nginx
 EXPOSE 8080
 ENTRYPOINT ["nginx"]

@@ -1,6 +1,6 @@
 # workflows
 
-GitHub Actions CI definitions for the fiducia-ui site.
+GitHub Actions CI definitions for the fiducia-marketing site.
 
 - `ci.yml` — runs on pushes to `main`, PRs, and manual dispatch. Checks out this
   repo alongside its sibling `file:../` dependencies (`fiducia-interfaces`,

@@ -3,7 +3,7 @@
 ## Repository role
 
 - This is the static Astro marketing site only.
-- Customer features belong to `fiducia-backend.rs`; operator features belong to
+- Customer features belong to `fiducia-customer.rs`; operator features belong to
   `fiducia-admin.rs`.
 - Do not add login, customer account, API-key, or admin workflows here.
 
