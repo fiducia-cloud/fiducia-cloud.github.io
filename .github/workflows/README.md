@@ -8,4 +8,6 @@ GitHub Actions CI definitions for the fiducia-ui site.
   repeatable dependency graph, then runs the Node contract tests and the Astro
   production build as required gates. A bounded `browser-e2e` job runs the
   Playwright/Puppeteer suite with a real Chrome and uses the same immutable
-  sibling pins; browser regressions fail CI.
+  sibling pins; browser regressions fail CI. A separate `container-build` job
+  builds the image from an isolated checkout with those same pins, preventing a
+  developer's ambient sibling repositories from masking a broken Dockerfile.

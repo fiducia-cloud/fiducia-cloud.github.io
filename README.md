@@ -33,8 +33,8 @@ npm run sync       # build + copy dist/ into ../fiducia-backend.rs/static/
 
 `npm ci` installs the exact dependency graph in `package-lock.json`. Its local
 packages are supplied as sibling repositories: `@fiducia/interfaces` at
-`bbd8b52ce729ec34b0a9bff4dda6d0a448181797` and `@fiducia/test-config` at
-`ed4c788abf3964482ae72a08b82fa3ac1d193f81`. CI checks out those full commits
+`d6c2b02b862ca57ebdd46b5dbfd9433e164a7d50` and `@fiducia/test-config` at
+`825220281fdc16bbf47a035177001d2fe29bdabf`. CI checks out those full commits
 explicitly rather than following moving branches.
 
 ## Container build
@@ -46,18 +46,20 @@ to other full commit IDs:
 
 ```bash
 docker build \
-  --build-arg INTERFACES_REF=bbd8b52ce729ec34b0a9bff4dda6d0a448181797 \
-  --build-arg TEST_CONFIG_REF=ed4c788abf3964482ae72a08b82fa3ac1d193f81 \
+  --build-arg INTERFACES_REF=d6c2b02b862ca57ebdd46b5dbfd9433e164a7d50 \
+  --build-arg TEST_CONFIG_REF=825220281fdc16bbf47a035177001d2fe29bdabf \
   --build-arg PUBLIC_BASE=/fiducia \
   -t fiducia-ui .
 ```
 
 `PUBLIC_BASE` is the only application build-time setting. The builder uses
-`node:24-slim`; the final `nginx:1.27-alpine` stage contains only the static
+digest-pinned `node:26-slim`; the final digest-pinned `nginx:1.31-alpine` stage
+contains only the static
 `dist/` output and nginx configuration—no Git client, source checkout, Node
 toolchain, or sibling repositories. Nginx runs as its unprivileged `nginx` user,
 listens on port `8080`, writes temporary files only under `/tmp`, and adds
-baseline static-site security headers. When the gateway uses `/fiducia`, it
+baseline static-site security headers. CI builds this image from an isolated
+checkout, so missing sibling inputs fail closed. When the gateway uses `/fiducia`, it
 must continue stripping that prefix before proxying to the container; use
 `PUBLIC_BASE=/` for root-hosted deployments.
 

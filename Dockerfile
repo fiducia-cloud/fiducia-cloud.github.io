@@ -4,8 +4,8 @@ FROM node:26-slim@sha256:ffc78385a788964bb3cbab5e434ff79a10bdc25b8ae6db03fe5fe6c
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates git
 
-ARG INTERFACES_REF=bbd8b52ce729ec34b0a9bff4dda6d0a448181797
-ARG TEST_CONFIG_REF=ed4c788abf3964482ae72a08b82fa3ac1d193f81
+ARG INTERFACES_REF=d6c2b02b862ca57ebdd46b5dbfd9433e164a7d50
+ARG TEST_CONFIG_REF=825220281fdc16bbf47a035177001d2fe29bdabf
 WORKDIR /build
 # package-lock.json contains sibling file: dependencies. Fetch only the exact
 # requested commits and verify that callers supplied full immutable SHAs.
