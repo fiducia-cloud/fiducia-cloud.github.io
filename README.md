@@ -29,3 +29,17 @@ npm run sync       # build + copy dist/ into ../fiducia-backend.rs/static/
 The Rust backend (`../fiducia-backend.rs`) serves the built site. After changing
 anything here, run `npm run sync` and commit the regenerated `static/` in the
 backend repo.
+
+## Security posture
+
+- **Fully static, no secrets in the bundle.** Output is static HTML/CSS/JS. The
+  only build-time env is `PUBLIC_BASE` (a URL path prefix) — no API keys, tokens,
+  or credentials are inlined. `npm audit --omit=dev` reports 0 vulnerabilities.
+- **No user data / no XSS sinks.** The marketing pages render only static,
+  author-controlled content; there is no `innerHTML`/`dangerouslySetInnerHTML`
+  and no request-derived interpolation.
+- **HTTP security headers are set by the serving layer.** CSP,
+  `X-Content-Type-Options: nosniff`, `X-Frame-Options`/`frame-ancestors`, and
+  `Referrer-Policy` are applied by `fiducia-backend.rs` in front of `dist/`. The
+  shell also carries `<meta name="referrer" content="strict-origin-when-cross-origin">`
+  as defense-in-depth so full URLs don't leak to third-party origins.
