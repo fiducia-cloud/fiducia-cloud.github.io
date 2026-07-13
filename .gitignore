@@ -19,3 +19,17 @@ pnpm-debug.log*
 
 # Scratch / git worktrees (tmp/worktrees/*)
 tmp/
+
+# --- hardened baseline (auto) ---
+Thumbs.db
+*.log
+*.swp
+*~
+.direnv/
+.next/
+.cache/
+coverage/
+*.tsbuildinfo
+pkg/
+pkg-node/
+*-debug.log*
