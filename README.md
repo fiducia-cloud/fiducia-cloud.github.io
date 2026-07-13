@@ -13,6 +13,11 @@
 The [Astro](https://astro.build) front-end for **fiducia.cloud** — the marketing
 homepage for Raft-based consensus & coordination as a service.
 
+This repository is static marketing only. Customer account/API-key workflows
+belong to the Rust MASH server in `fiducia-backend.rs`; operator workflows belong
+to the separate Rust MASH server in `fiducia-admin.rs`. Neither application is
+compiled into this Astro site.
+
 - Purple + navy theme, fully static output.
 - Built behind a gateway path prefix, so `base` is `/fiducia` (override with
   `PUBLIC_BASE=/` to serve at a domain root).
