@@ -10,3 +10,7 @@ site.
 - `404.astro` — the on-brand custom "no quorum" not-found page.
 
 All pages wrap their content in `src/layouts/Layout.astro`.
+
+This file is underscore-prefixed (`_README.md`) so Astro excludes it from
+routing — a plain `README.md` here would be built and published as a live
+`/README/` page on the site.

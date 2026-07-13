@@ -61,7 +61,9 @@ jobs:
         with:
           node-version: "22"
       - id: chrome
-        uses: browser-actions/setup-chrome@v2
+        # Third-party action: pinned to a full commit SHA (v2) so a moved tag
+        # can't inject code; dependabot keeps the pin updated.
+        uses: browser-actions/setup-chrome@2e1d749697dd1612b833dba4a722266286fbefcd # v2
       - run: npm ci
         working-directory: repo
       - name: browser tests
