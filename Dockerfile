@@ -26,7 +26,7 @@ RUN test "${#INTERFACES_REF}" -eq 40 \
 
 WORKDIR /build/fiducia-ui.web
 COPY package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 COPY . .
 ARG PUBLIC_BASE=/fiducia
 RUN PUBLIC_BASE="$PUBLIC_BASE" npm run build
