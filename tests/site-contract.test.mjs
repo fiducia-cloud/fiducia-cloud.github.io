@@ -58,3 +58,49 @@ test("responsive CSS protects mobile nav, grids, and terminal overflow", () => {
   assert.match(css, /\.nav__links\s*\{\s*display: none;/);
   assert.match(css, /overflow-x: auto;/);
 });
+
+test("CNAME and astro config agree on the canonical domain fiducia.cloud", async () => {
+  const cname = (await readFile(new URL("../public/CNAME", import.meta.url), "utf8")).trim();
+  assert.equal(cname, "fiducia.cloud", "GitHub Pages CNAME must stay the canonical domain");
+
+  const { default: config } = await import("../astro.config.mjs");
+  assert.equal(
+    config.site,
+    "https://fiducia.cloud",
+    "astro `site` must match the Pages CNAME or emitted canonical/sitemap URLs break",
+  );
+  assert.equal(new URL(config.site).hostname, cname, "CNAME and astro site must be one domain");
+});
+
+test("consensus pitching carries the crash-fault (CFT, not Byzantine) qualifier", () => {
+  // Language policy (fiducia-monorepo/docs/use-cases-exploration.md): Raft is
+  // CFT — one operator's non-lying nodes. The site may sell consensus,
+  // elections, and exactly-once coordination, but never Byzantine/trustless
+  // security. If the pitch is present, the qualifier must be too.
+  const sources = { "src/pages/index.astro": page, "src/layouts/Layout.astro": layout };
+  const pitches = /consensus|election|financial|payout|custody|exactly-once/i;
+  const qualifier = /crash-fault\s+tolerant\s*\(CFT\)[^.]*not\s+Byzantine/is;
+
+  const pitching = Object.entries(sources)
+    .filter(([, text]) => pitches.test(text))
+    .map(([name]) => name);
+  assert.ok(pitching.length > 0, "expected the marketing site to pitch consensus somewhere");
+
+  assert.ok(
+    Object.values(sources).some((text) => qualifier.test(text)),
+    `these sources pitch consensus/elections (${pitching.join(", ")}) but no page copy ` +
+      "carries the crash-fault qualifier. Add language like “crash-fault tolerant " +
+      "(CFT), not Byzantine” — see fiducia-monorepo/docs/use-cases-exploration.md " +
+      "(“Raft is CFT, not BFT. Never claim otherwise.”)",
+  );
+
+  // And the site must never over-claim the opposite.
+  for (const [name, text] of Object.entries(sources)) {
+    assert.doesNotMatch(text, /trustless/i, `${name}: never pitch trustless security`);
+    assert.doesNotMatch(
+      text,
+      /byzantine[\s-]+fault[\s-]+toleran|\bBFT\b/i,
+      `${name}: never claim Byzantine fault tolerance`,
+    );
+  }
+});

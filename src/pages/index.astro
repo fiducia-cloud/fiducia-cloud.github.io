@@ -338,7 +338,8 @@ const terminal = `<span class="tok-cmd">$</span> curl -X POST https://api.fiduci
           <h2>Coordination is easy to get<br /><span class="gradient-text">subtly, dangerously wrong</span></h2>
           <p>A Redis SETNX lock without fencing, a cron that double-fires after a deploy, a rate
             limiter that drifts between replicas — these are the bugs you find in production.
-            Fiducia makes correctness the default.</p>
+            Fiducia makes correctness the default. It is crash-fault tolerant (CFT), not
+            Byzantine: it assumes your own nodes can crash, never that they lie.</p>
         </div>
         <div class="grid-3">
           <article class="card reveal">
