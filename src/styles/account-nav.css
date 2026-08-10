@@ -1,0 +1,115 @@
+/* Shared account navigation for the static GitHub Pages site.
+   The links deliberately cross into the Rust customer application; this bundle
+   contains no auth SDK, provider configuration, tokens, cookies, or callbacks. */
+
+/* The pages predate the shared layout and still render a nav as their first
+   child. Hide that duplicate only; all page content remains untouched. */
+.legacy-page-shell > .nav {
+  display: none;
+}
+
+.nav--global {
+  z-index: 100;
+}
+
+.nav--global .nav__inner {
+  gap: 1rem;
+}
+
+.nav--global .nav__links {
+  margin-left: auto;
+  gap: 1.25rem;
+}
+
+.nav__account {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  margin-left: 0.25rem;
+}
+
+.nav__account-link {
+  min-height: 40px;
+  padding: 0.58rem 0.82rem;
+  justify-content: center;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+.nav__account-link--login {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+  border-radius: 9px;
+  font-weight: 600;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.nav__account-link--login:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nav--global a:focus-visible {
+  outline: 3px solid var(--purple-400);
+  outline-offset: 3px;
+}
+
+@media (max-width: 1040px) {
+  .nav--global .nav__links {
+    gap: 0.9rem;
+  }
+
+  .nav__account-link {
+    padding-inline: 0.7rem;
+  }
+}
+
+/* global.css intentionally hides only .nav__links at this breakpoint. Account
+   actions live in their own group, so login/signup/dashboard remain reachable. */
+@media (max-width: 880px) {
+  .nav--global .nav__inner {
+    justify-content: space-between;
+  }
+
+  .nav__account {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 620px) {
+  .nav--global .nav__inner {
+    height: auto;
+    min-height: 68px;
+    flex-wrap: wrap;
+    padding-block: 0.72rem;
+  }
+
+  .nav__account {
+    width: 100%;
+    margin-left: 0;
+    gap: 0.45rem;
+  }
+
+  .nav__account-link {
+    flex: 1 1 0;
+    min-width: 0;
+    padding-inline: 0.5rem;
+  }
+
+  .nav__account-link--login {
+    border: 1px solid var(--navy-border);
+    background: rgba(255, 255, 255, 0.02);
+  }
+}
+
+@media (max-width: 390px) {
+  .nav__account {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .nav__account-link:last-child {
+    grid-column: 1 / -1;
+  }
+}
