@@ -49,11 +49,11 @@ test("primary calls to action remain internal and deploy-prefix safe", () => {
   assert.doesNotMatch(page, /javascript:/i);
 });
 
-test("global header delegates account entrypoints to the Rust customer app", () => {
+test("global header delegates account entrypoints to existing Rust app routes", () => {
   for (const route of [
     "https://app.fiducia.cloud/login",
-    "https://app.fiducia.cloud/signup",
-    "https://app.fiducia.cloud/dashboard",
+    "https://app.fiducia.cloud/app/signup",
+    "https://app.fiducia.cloud/app/dashboard",
   ]) {
     assert.ok(layout.includes(route), `missing account destination: ${route}`);
   }
