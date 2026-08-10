@@ -1,7 +1,7 @@
 ---
-// Base HTML shell for every page: sets metadata, renders a shared token-blind
-// account bar, and then page content via <slot />. Authentication, Supabase,
-// Shared Auth, cookies, MFA, and token rotation stay on app.fiducia.cloud.
+// Base HTML shell for every page: sets <head> metadata (title, description, OG
+// tags, favicon), renders a shared account bar, and then page content via
+// <slot />. Authentication remains entirely on app.fiducia.cloud.
 import '../styles/global.css';
 import '../styles/account-nav.css';
 
@@ -19,44 +19,24 @@ const {
 // without a trailing slash when `base` is configured without one).
 const base = import.meta.env.BASE_URL.replace(/\/+$/, '') + '/';
 
-const accountOrigin = 'https://app.fiducia.cloud';
+// The static GitHub Pages site only delegates users to routes already owned by
+// the Rust customer app. Shared Auth, Supabase, cookies, MFA, and session
+// rotation stay server-side.
 const accountRoutes = {
-  login: `${accountOrigin}/login`,
-  signup: `${accountOrigin}/app/signup`,
-  dashboard: `${accountOrigin}/app/dashboard`,
+  login: 'https://app.fiducia.cloud/login',
+  signup: 'https://app.fiducia.cloud/app/signup',
+  dashboard: 'https://app.fiducia.cloud/app/dashboard',
 };
-const accountSessionScript = `${base}account-session.js`;
-
-// GitHub Pages does not emit repository-owned response headers. Enforce the
-// active-content subset in markup and allow the self-hosted session client to
-// contact only the exact Rust customer-app origin.
-const contentSecurityPolicy = [
-  "default-src 'self'",
-  "base-uri 'none'",
-  "object-src 'none'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  "font-src 'self'",
-  "img-src 'self' data:",
-  `connect-src ${accountOrigin}`,
-  "frame-src 'none'",
-  "worker-src 'self'",
-  "manifest-src 'self'",
-  "form-action 'self'",
-  "upgrade-insecure-requests",
-].join('; ');
 ---
 
 <!doctype html>
-<html
-  lang="en"
-  data-account-origin={accountOrigin}
-  data-site-base={base}
->
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content={contentSecurityPolicy} />
+    <!-- Privacy hardening: don't leak full URLs/paths to third-party origins.
+         HTTP security headers (CSP, X-Content-Type-Options, X-Frame-Options,
+         Referrer-Policy) are set by the serving layer (fiducia-customer.rs). -->
     <meta name="referrer" content="strict-origin-when-cross-origin" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#070b1a" />
@@ -65,7 +45,6 @@ const contentSecurityPolicy = [
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <script is:inline type="module" src={accountSessionScript}></script>
   </head>
   <body>
     <header class="account-bar">
@@ -74,25 +53,10 @@ const contentSecurityPolicy = [
           <span class="account-bar__status" aria-hidden="true"></span>
           Customer console
         </span>
-        <nav
-          class="account-bar__actions"
-          aria-label="Account"
-          aria-live="polite"
-        >
-          <a
-            class="account-bar__link account-bar__link--primary"
-            href={accountOrigin}
-            data-account-primary
-            data-login-href={accountRoutes.login}
-            data-dashboard-href={accountRoutes.dashboard}
-            aria-label="Open account"
-          >Account</a>
-          <a
-            class="account-bar__link account-bar__link--signup"
-            href={accountRoutes.signup}
-            data-account-signup
-            hidden
-          >Sign up</a>
+        <nav class="account-bar__actions" aria-label="Account">
+          <a class="account-bar__link account-bar__link--login" href={accountRoutes.login}>Log in</a>
+          <a class="account-bar__link account-bar__link--signup" href={accountRoutes.signup}>Sign up</a>
+          <a class="account-bar__link account-bar__link--dashboard" href={accountRoutes.dashboard}>Dashboard</a>
         </nav>
       </div>
     </header>
