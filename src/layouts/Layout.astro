@@ -1,7 +1,7 @@
 ---
 // Base HTML shell for every page: sets <head> metadata (title, description, OG
-// tags, favicon), renders the shared marketing/account header, and then page
-// content via <slot />. Authentication remains entirely on app.fiducia.cloud.
+// tags, favicon), renders a shared account bar, and then page content via
+// <slot />. Authentication remains entirely on app.fiducia.cloud.
 import '../styles/global.css';
 import '../styles/account-nav.css';
 
@@ -47,45 +47,22 @@ const accountRoutes = {
     <meta property="og:type" content="website" />
   </head>
   <body>
-    <nav class="nav nav--global" aria-label="Primary">
-      <div class="nav__inner container">
-        <a class="nav__logo" href={base} aria-label="Fiducia home">
-          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-            <defs>
-              <linearGradient id="layout-logo-gradient" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0" stop-color="#c084fc" />
-                <stop offset="1" stop-color="#6366f1" />
-              </linearGradient>
-            </defs>
-            <circle cx="16" cy="7" r="3.2" fill="url(#layout-logo-gradient)" />
-            <circle cx="7" cy="23" r="3.2" fill="url(#layout-logo-gradient)" />
-            <circle cx="25" cy="23" r="3.2" fill="url(#layout-logo-gradient)" />
-            <path d="M16 7 L7 23 M16 7 L25 23 M7 23 L25 23" stroke="url(#layout-logo-gradient)" stroke-width="1.6" opacity="0.65" />
-            <circle cx="16" cy="17.6" r="1.7" fill="#e9d5ff" />
-          </svg>
-          <span class="nav__logo-text">Fiducia<span class="nav__logo-dim">.cloud</span></span>
-        </a>
-
-        <div class="nav__links" aria-label="Product sections">
-          <a class="nav__link" href={`${base}#services`}>Services</a>
-          <a class="nav__link" href={`${base}#agents`}>AI agents</a>
-          <a class="nav__link" href={`${base}#how`}>How it works</a>
-          <a class="nav__link" href={`${base}#why`}>Why Raft</a>
-        </div>
-
-        <div class="nav__account" role="group" aria-label="Account">
-          <a class="nav__account-link nav__account-link--login" href={accountRoutes.login}>Log in</a>
-          <a class="btn btn--ghost nav__account-link" href={accountRoutes.signup}>Sign up</a>
-          <a class="btn btn--primary nav__account-link" href={accountRoutes.dashboard}>Dashboard</a>
-        </div>
+    <header class="account-bar">
+      <div class="account-bar__inner container">
+        <span class="account-bar__context">
+          <span class="account-bar__status" aria-hidden="true"></span>
+          Customer console
+        </span>
+        <nav class="account-bar__actions" aria-label="Account">
+          <a class="account-bar__link account-bar__link--login" href={accountRoutes.login}>Log in</a>
+          <a class="account-bar__link account-bar__link--signup" href={accountRoutes.signup}>Sign up</a>
+          <a class="account-bar__link account-bar__link--dashboard" href={accountRoutes.dashboard}>Dashboard</a>
+        </nav>
       </div>
-    </nav>
+    </header>
 
-    <!-- Existing pages still contain their historical per-page nav while they
-         are migrated. The wrapper lets account-nav.css hide only that duplicate
-         chrome without touching section content or placing auth logic in Pages. -->
-    <div class="legacy-page-shell">
-      <slot />
-    </div>
+    <!-- Each page retains its established product navigation and CTA contract.
+         account-nav.css offsets that sticky nav below this shared account bar. -->
+    <slot />
   </body>
 </html>
