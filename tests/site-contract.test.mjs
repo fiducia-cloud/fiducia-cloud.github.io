@@ -1,6 +1,3 @@
-// Fast source-contract tests: assert (without a browser) that the landing page,
-// layout, and CSS keep their key marketing content, CTAs, account routes, and
-// responsive rules.
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -10,6 +7,14 @@ const layout = await readFile(new URL("../src/layouts/Layout.astro", import.meta
 const css = await readFile(new URL("../src/styles/global.css", import.meta.url), "utf8");
 const accountCss = await readFile(
   new URL("../src/styles/account-nav.css", import.meta.url),
+  "utf8",
+);
+const sessionClient = await readFile(
+  new URL("../public/account-session.js", import.meta.url),
+  "utf8",
+);
+const sessionWorker = await readFile(
+  new URL("../public/account-session-sw.js", import.meta.url),
   "utf8",
 );
 
@@ -49,23 +54,47 @@ test("primary calls to action remain internal and deploy-prefix safe", () => {
   assert.doesNotMatch(page, /javascript:/i);
 });
 
-test("global account bar delegates to existing Rust app routes", () => {
+test("account bar is neutral until the token-blind Rust BFF check resolves", () => {
   for (const route of [
-    "https://app.fiducia.cloud/login",
-    "https://app.fiducia.cloud/app/signup",
-    "https://app.fiducia.cloud/app/dashboard",
+    "https://app.fiducia.cloud",
+    "/login",
+    "/app/signup",
+    "/app/dashboard",
   ]) {
     assert.ok(layout.includes(route), `missing account destination: ${route}`);
   }
 
   assert.match(layout, /<header class="account-bar">/);
-  assert.match(layout, /<nav class="account-bar__actions" aria-label="Account">/);
-  assert.match(layout, />Log in<\/a>/);
-  assert.match(layout, />Sign up<\/a>/);
-  assert.match(layout, />Dashboard<\/a>/);
-  assert.match(layout, /static GitHub Pages site only delegates users/);
-  assert.doesNotMatch(layout, /SUPABASE_(URL|KEY|PUBLISHABLE_KEY)/);
-  assert.doesNotMatch(layout, /shared-auth.*secret/i);
+  assert.match(layout, /aria-label="Account"/);
+  assert.match(layout, /data-account-primary/);
+  assert.match(layout, /data-account-signup/);
+  assert.match(layout, />Account<\/a>/);
+  assert.match(layout, /data-account-signup[\s\S]*hidden[\s\S]*>Sign up<\/a>/);
+  assert.doesNotMatch(layout, />Log in<\/a>/);
+  assert.doesNotMatch(layout, />Dashboard<\/a>/);
+  assert.match(layout, /Content-Security-Policy/);
+  assert.match(layout, /connect-src \$\{accountOrigin\}/);
+});
+
+test("session client renders anonymous and authenticated states without token storage", () => {
+  assert.match(sessionClient, /primary\.textContent = "Log in"/);
+  assert.match(sessionClient, /primary\.textContent = "User dashboard"/);
+  assert.match(sessionClient, /signup\.hidden = false/);
+  assert.match(sessionClient, /signup\.hidden = true/);
+  assert.match(sessionClient, /50 \* 60 \* 1000/);
+  assert.match(sessionClient, /\/auth\/session\/status/);
+  assert.match(sessionClient, /\/auth\/session\/refresh/);
+  assert.match(sessionClient, /credentials: "include"/);
+  assert.match(sessionClient, /visibilitychange/);
+  assert.match(sessionClient, /periodicSync/);
+  assert.match(sessionWorker, /periodicsync/);
+  assert.match(sessionWorker, /credentials: "include"/);
+
+  const sources = [layout, sessionClient, sessionWorker].join("\n");
+  assert.doesNotMatch(sources, /SUPABASE_(URL|KEY|PUBLISHABLE_KEY|SERVICE_ROLE)/);
+  assert.doesNotMatch(sources, /shared-auth.*secret/i);
+  assert.doesNotMatch(sources, /localStorage|sessionStorage/);
+  assert.doesNotMatch(sources, /access_token|refresh_token/);
 });
 
 test("account actions remain visible while the tested product nav is preserved", () => {
@@ -73,12 +102,13 @@ test("account actions remain visible while the tested product nav is preserved",
   assert.match(accountCss, /\.account-bar__actions\s*\{[\s\S]*display:\s*flex;/);
   assert.match(accountCss, /@media \(max-width: 560px\)/);
   assert.match(accountCss, /\.account-bar__link\s*\{[\s\S]*min-height:\s*42px;/);
+  assert.match(accountCss, /\.account-bar__link\[hidden\]\s*\{[\s\S]*display:\s*none;/);
   assert.doesNotMatch(accountCss, /\.account-bar__actions\s*\{[^}]*display:\s*none;/);
   assert.doesNotMatch(layout, /legacy-page-shell/);
 });
 
 test("layout keeps production metadata and viewport controls", () => {
-  assert.match(layout, /<html lang="en">/);
+  assert.match(layout, /lang="en"/);
   assert.match(layout, /name="viewport"/);
   assert.match(layout, /name="description"/);
   assert.match(layout, /property="og:title"/);
@@ -94,22 +124,14 @@ test("responsive CSS protects mobile nav, grids, and terminal overflow", () => {
 
 test("CNAME and astro config agree on the canonical domain fiducia.cloud", async () => {
   const cname = (await readFile(new URL("../public/CNAME", import.meta.url), "utf8")).trim();
-  assert.equal(cname, "fiducia.cloud", "GitHub Pages CNAME must stay the canonical domain");
+  assert.equal(cname, "fiducia.cloud");
 
   const { default: config } = await import("../astro.config.mjs");
-  assert.equal(
-    config.site,
-    "https://fiducia.cloud",
-    "astro `site` must match the Pages CNAME or emitted canonical/sitemap URLs break",
-  );
-  assert.equal(new URL(config.site).hostname, cname, "CNAME and astro site must be one domain");
+  assert.equal(config.site, "https://fiducia.cloud");
+  assert.equal(new URL(config.site).hostname, cname);
 });
 
 test("consensus pitching carries the crash-fault (CFT, not Byzantine) qualifier", () => {
-  // Language policy (fiducia-monorepo/docs/use-cases-exploration.md): Raft is
-  // CFT — one operator's non-lying nodes. The site may sell consensus,
-  // elections, and exactly-once coordination, but never Byzantine/trustless
-  // security. If the pitch is present, the qualifier must be too.
   const sources = { "src/pages/index.astro": page, "src/layouts/Layout.astro": layout };
   const pitches = /consensus|election|financial|payout|custody|exactly-once/i;
   const qualifier = /crash-fault\s+tolerant\s*\(CFT\)[^.]*not\s+Byzantine/is;
@@ -117,17 +139,12 @@ test("consensus pitching carries the crash-fault (CFT, not Byzantine) qualifier"
   const pitching = Object.entries(sources)
     .filter(([, text]) => pitches.test(text))
     .map(([name]) => name);
-  assert.ok(pitching.length > 0, "expected the marketing site to pitch consensus somewhere");
-
+  assert.ok(pitching.length > 0);
   assert.ok(
     Object.values(sources).some((text) => qualifier.test(text)),
-    `these sources pitch consensus/elections (${pitching.join(", ")}) but no page copy ` +
-      "carries the crash-fault qualifier. Add language like “crash-fault tolerant " +
-      "(CFT), not Byzantine” — see fiducia-monorepo/docs/use-cases-exploration.md " +
-      "(“Raft is CFT, not BFT. Never claim otherwise.”)",
+    `these sources pitch consensus/elections (${pitching.join(", ")}) but no page copy carries the crash-fault qualifier`,
   );
 
-  // And the site must never over-claim the opposite.
   for (const [name, text] of Object.entries(sources)) {
     assert.doesNotMatch(text, /trustless/i, `${name}: never pitch trustless security`);
     assert.doesNotMatch(
