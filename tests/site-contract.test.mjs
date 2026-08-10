@@ -1,5 +1,6 @@
 // Fast source-contract tests: assert (without a browser) that the landing page,
-// layout, and CSS keep their key marketing content, CTAs, and responsive rules.
+// layout, and CSS keep their key marketing content, CTAs, account routes, and
+// responsive rules.
 import { readFile } from "node:fs/promises";
 import { test } from "node:test";
 import assert from "node:assert/strict";
@@ -7,6 +8,10 @@ import assert from "node:assert/strict";
 const page = await readFile(new URL("../src/pages/index.astro", import.meta.url), "utf8");
 const layout = await readFile(new URL("../src/layouts/Layout.astro", import.meta.url), "utf8");
 const css = await readFile(new URL("../src/styles/global.css", import.meta.url), "utf8");
+const accountCss = await readFile(
+  new URL("../src/styles/account-nav.css", import.meta.url),
+  "utf8",
+);
 
 test("landing page keeps every coordination primitive visible", () => {
   for (const label of [
@@ -42,6 +47,34 @@ test("primary calls to action remain internal and deploy-prefix safe", () => {
   assert.match(page, /href="#services"/);
   assert.match(page, /href=\{`\$\{base\}api\/info`\}/);
   assert.doesNotMatch(page, /javascript:/i);
+});
+
+test("global account bar delegates to existing Rust app routes", () => {
+  for (const route of [
+    "https://app.fiducia.cloud/login",
+    "https://app.fiducia.cloud/app/signup",
+    "https://app.fiducia.cloud/app/dashboard",
+  ]) {
+    assert.ok(layout.includes(route), `missing account destination: ${route}`);
+  }
+
+  assert.match(layout, /<header class="account-bar">/);
+  assert.match(layout, /<nav class="account-bar__actions" aria-label="Account">/);
+  assert.match(layout, />Log in<\/a>/);
+  assert.match(layout, />Sign up<\/a>/);
+  assert.match(layout, />Dashboard<\/a>/);
+  assert.match(layout, /static GitHub Pages site only delegates users/);
+  assert.doesNotMatch(layout, /SUPABASE_(URL|KEY|PUBLISHABLE_KEY)/);
+  assert.doesNotMatch(layout, /shared-auth.*secret/i);
+});
+
+test("account actions remain visible while the tested product nav is preserved", () => {
+  assert.match(accountCss, /body\s*>\s*\.nav\s*\{\s*top:\s*var\(--fiducia-account-bar-height\);/);
+  assert.match(accountCss, /\.account-bar__actions\s*\{[\s\S]*display:\s*flex;/);
+  assert.match(accountCss, /@media \(max-width: 560px\)/);
+  assert.match(accountCss, /\.account-bar__link\s*\{[\s\S]*min-height:\s*42px;/);
+  assert.doesNotMatch(accountCss, /\.account-bar__actions\s*\{[^}]*display:\s*none;/);
+  assert.doesNotMatch(layout, /legacy-page-shell/);
 });
 
 test("layout keeps production metadata and viewport controls", () => {

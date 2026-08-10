@@ -1,7 +1,9 @@
 ---
 // Base HTML shell for every page: sets <head> metadata (title, description, OG
-// tags, favicon), the /fiducia base URL, and renders page content via <slot />.
+// tags, favicon), renders a shared account bar, and then page content via
+// <slot />. Authentication remains entirely on app.fiducia.cloud.
 import '../styles/global.css';
+import '../styles/account-nav.css';
 
 interface Props {
   title?: string;
@@ -16,6 +18,15 @@ const {
 // Normalize BASE_URL to always end in exactly one slash (Astro returns it
 // without a trailing slash when `base` is configured without one).
 const base = import.meta.env.BASE_URL.replace(/\/+$/, '') + '/';
+
+// The static GitHub Pages site only delegates users to routes already owned by
+// the Rust customer app. Shared Auth, Supabase, cookies, MFA, and session
+// rotation stay server-side.
+const accountRoutes = {
+  login: 'https://app.fiducia.cloud/login',
+  signup: 'https://app.fiducia.cloud/app/signup',
+  dashboard: 'https://app.fiducia.cloud/app/dashboard',
+};
 ---
 
 <!doctype html>
@@ -36,6 +47,22 @@ const base = import.meta.env.BASE_URL.replace(/\/+$/, '') + '/';
     <meta property="og:type" content="website" />
   </head>
   <body>
+    <header class="account-bar">
+      <div class="account-bar__inner container">
+        <span class="account-bar__context">
+          <span class="account-bar__status" aria-hidden="true"></span>
+          Customer console
+        </span>
+        <nav class="account-bar__actions" aria-label="Account">
+          <a class="account-bar__link account-bar__link--login" href={accountRoutes.login}>Log in</a>
+          <a class="account-bar__link account-bar__link--signup" href={accountRoutes.signup}>Sign up</a>
+          <a class="account-bar__link account-bar__link--dashboard" href={accountRoutes.dashboard}>Dashboard</a>
+        </nav>
+      </div>
+    </header>
+
+    <!-- Each page retains its established product navigation and CTA contract.
+         account-nav.css offsets that sticky nav below this shared account bar. -->
     <slot />
   </body>
 </html>
