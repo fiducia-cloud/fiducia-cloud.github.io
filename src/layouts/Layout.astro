@@ -19,12 +19,13 @@ const {
 // without a trailing slash when `base` is configured without one).
 const base = import.meta.env.BASE_URL.replace(/\/+$/, '') + '/';
 
-// The static GitHub Pages site only delegates users to the Rust customer app.
-// Shared Auth, Supabase, cookies, MFA, and session rotation stay server-side.
+// The static GitHub Pages site only delegates users to routes already owned by
+// the Rust customer app. Shared Auth, Supabase, cookies, MFA, and session
+// rotation stay server-side.
 const accountRoutes = {
   login: 'https://app.fiducia.cloud/login',
-  signup: 'https://app.fiducia.cloud/signup',
-  dashboard: 'https://app.fiducia.cloud/dashboard',
+  signup: 'https://app.fiducia.cloud/app/signup',
+  dashboard: 'https://app.fiducia.cloud/app/dashboard',
 };
 ---
 
