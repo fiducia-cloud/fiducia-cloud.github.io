@@ -6,6 +6,10 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 
 const page = await readFile(new URL("../src/pages/index.astro", import.meta.url), "utf8");
+const useCasesPage = await readFile(
+  new URL("../src/pages/use-cases.astro", import.meta.url),
+  "utf8",
+);
 const layout = await readFile(new URL("../src/layouts/Layout.astro", import.meta.url), "utf8");
 const css = await readFile(new URL("../src/styles/global.css", import.meta.url), "utf8");
 const accountCss = await readFile(
@@ -83,6 +87,20 @@ test("layout keeps production metadata and viewport controls", () => {
   assert.match(layout, /name="description"/);
   assert.match(layout, /property="og:title"/);
   assert.match(layout, /property="og:description"/);
+});
+
+test("ORES Chat is an integrity-pinned footer-only enhancement on every marketing page", async () => {
+  const pkg = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
+  for (const source of [page, useCasesPage]) {
+    const footer = source.match(/<footer[\s\S]*?<\/footer>/)?.[0] ?? "";
+    assert.match(footer, /<ores-chat-footer-link context-id="fiducia-cloud">/);
+    assert.match(footer, /https:\/\/ores-chat\.github\.io\/chat\/\?context=fiducia-cloud/);
+    assert.doesNotMatch(source.slice(0, source.indexOf("<footer")), /<ores-chat-footer-link/);
+  }
+
+  assert.match(layout, /https:\/\/ores-chat\.github\.io\/components\/v1\/ores-chat-footer-link\.js/);
+  assert.match(layout, /integrity="sha256-jtetSlJDWLAWg2\+zQIZGUX71OYlIKkZ9sbPnFMup5SE="/);
+  assert.doesNotMatch(JSON.stringify({ ...pkg.dependencies, ...pkg.devDependencies }), /"react(?:-dom)?"/i);
 });
 
 test("responsive CSS protects mobile nav, grids, and terminal overflow", () => {
