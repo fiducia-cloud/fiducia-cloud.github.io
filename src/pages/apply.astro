@@ -1,0 +1,43 @@
+---
+import CommercialJourney from '../components/CommercialJourney.astro';
+
+const details = [
+  {
+    title: 'Architecture and reliability',
+    body: 'Define the complete technical operating need so Fiducia can qualify the right deployment and service boundary.',
+    items: [
+      'Capabilities, deployment models, regions, SDKs, integrations, scale, payloads, and retention',
+      'Consistency, latency, failover, RPO, RTO, private networking, edge, and migration requirements',
+      'Current stack, environment count, production deadline, and architecture notes',
+    ],
+  },
+  {
+    title: 'Security, support, and service levels',
+    body: 'Request the controls and operating relationship your organization needs without treating the request as accepted.',
+    items: [
+      'Data classes, residency, SSO, SCIM, MFA, mTLS, customer-managed keys, audit, and security review',
+      'Coverage hours, support channels, onboarding, training, migration help, architecture review, TAM, and incident bridge',
+      'Availability, p95/p99 latency, response targets, maintenance notice, measurement window, error budget, and service credits',
+    ],
+  },
+  {
+    title: 'B2B contract and procurement',
+    body: 'Capture the legal and commercial workflow needed to reach a reviewed order form.',
+    items: [
+      'MSA, SOW, order form, SLA, DPA, NDA, AUP, security addendum, and customer-paper preferences',
+      'Term, renewal, termination, billing cadence, payment terms, currency, purchase order, and vendor portal',
+      'Governing law, venue, liability, indemnity, insurance, audit, data processing, subprocessors, and IP requirements',
+    ],
+  },
+];
+---
+
+<CommercialJourney
+  eyebrow="Detailed enterprise qualification"
+  title="Submit a Fiducia enterprise application"
+  summary="Describe business goals, architecture, scale, security, support, SLO/SLA expectations, procurement, legal terms, billing, and signatory context in one protected application."
+  destination="https://user.fiducia.cloud/apply"
+  primaryLabel="Open the secure application"
+  details={details}
+  note="The application starts technical, security, support, commercial, and legal review. Requested pricing, customer paper, support entitlements, certifications, availability, response times, credits, or liability terms remain non-binding until expressly accepted in a signed order form."
+/>
