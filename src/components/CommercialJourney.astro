@@ -1,0 +1,360 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+interface Detail {
+  title: string;
+  body: string;
+  items?: string[];
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  summary: string;
+  destination: string;
+  primaryLabel: string;
+  details: Detail[];
+  note: string;
+}
+
+const {
+  eyebrow,
+  title,
+  summary,
+  destination,
+  primaryLabel,
+  details,
+  note,
+} = Astro.props;
+
+const base = import.meta.env.BASE_URL.replace(/\/+$/, '') + '/';
+---
+
+<Layout title={`${title} — Fiducia`} description={summary}>
+  <nav class="journey-nav" aria-label="Product">
+    <div class="journey-nav__inner container">
+      <a class="journey-nav__brand" href={base}>Fiducia<span>.cloud</span></a>
+      <div class="journey-nav__links">
+        <a href={`${base}use-cases/`}>Use cases</a>
+        <a href={`${base}get-started/`}>Get started</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <section class="journey-hero">
+      <div class="container journey-hero__grid">
+        <div>
+          <p class="journey-eyebrow">{eyebrow}</p>
+          <h1>{title}</h1>
+          <p class="journey-summary">{summary}</p>
+          <div class="journey-actions">
+            <a class="btn btn--primary" href={destination}>{primaryLabel}</a>
+            <a class="btn btn--ghost" href={`${base}get-started/`}>Compare paths</a>
+          </div>
+          <p class="journey-boundary">
+            The secure form is hosted at <strong>user.fiducia.cloud</strong>.
+            This public page does not collect company, technical, legal, or contact data.
+          </p>
+        </div>
+
+        <aside class="journey-status" aria-label="Submission lifecycle">
+          <span class="journey-status__label">Review lifecycle</span>
+          <ol>
+            <li><strong>1</strong><span>Submit a protected intake request</span></li>
+            <li><strong>2</strong><span>Technical and commercial qualification</span></li>
+            <li><strong>3</strong><span>Human review of scope and requested terms</span></li>
+            <li><strong>4</strong><span>Written order form before any commitment</span></li>
+          </ol>
+        </aside>
+      </div>
+    </section>
+
+    <section class="journey-details">
+      <div class="container journey-details__grid">
+        {details.map((detail) => (
+          <article class="journey-card">
+            <h2>{detail.title}</h2>
+            <p>{detail.body}</p>
+            {detail.items && (
+              <ul>
+                {detail.items.map((item) => <li>{item}</li>)}
+              </ul>
+            )}
+          </article>
+        ))}
+      </div>
+    </section>
+
+    <section class="journey-assurance">
+      <div class="container journey-assurance__inner">
+        <div>
+          <p class="journey-eyebrow">Clear commercial boundary</p>
+          <h2>Preferences are not promises</h2>
+          <p>{note}</p>
+          <p>
+            Do not include passwords, access tokens, private keys, recovery phrases,
+            connection strings, production secrets, or regulated data samples.
+          </p>
+        </div>
+        <a class="btn btn--primary" href={destination}>{primaryLabel}</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="journey-footer">
+    <div class="container journey-footer__inner">
+      <span>Fiducia Cloud</span>
+      <nav aria-label="Commercial intake">
+        <a href={`${base}quote/`}>Quote</a>
+        <a href={`${base}pre-interest/`}>Pre-interest</a>
+        <a href={`${base}apply/`}>Enterprise application</a>
+      </nav>
+    </div>
+  </footer>
+</Layout>
+
+<style>
+  .journey-nav {
+    position: sticky;
+    top: var(--account-bar-height, 42px);
+    z-index: 20;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+    background: rgba(7, 11, 26, 0.88);
+    backdrop-filter: blur(16px);
+  }
+
+  .journey-nav__inner,
+  .journey-footer__inner {
+    min-height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+  }
+
+  .journey-nav__brand {
+    color: #f8fafc;
+    font-size: 1.16rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .journey-nav__brand span {
+    color: #a78bfa;
+  }
+
+  .journey-nav__links,
+  .journey-footer nav {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .journey-nav__links a,
+  .journey-footer a {
+    color: #cbd5e1;
+  }
+
+  .journey-nav__links a:hover,
+  .journey-footer a:hover {
+    color: #fff;
+  }
+
+  .journey-hero {
+    padding: 92px 0 72px;
+    background:
+      radial-gradient(circle at 18% 18%, rgba(124, 58, 237, 0.2), transparent 34%),
+      radial-gradient(circle at 82% 10%, rgba(37, 99, 235, 0.16), transparent 30%);
+  }
+
+  .journey-hero__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(280px, 0.65fr);
+    gap: 56px;
+    align-items: center;
+  }
+
+  .journey-eyebrow {
+    margin: 0 0 14px;
+    color: #a78bfa;
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    max-width: 880px;
+    margin: 0;
+    color: #f8fafc;
+    font-size: clamp(2.5rem, 7vw, 5rem);
+    line-height: 0.98;
+    letter-spacing: -0.055em;
+  }
+
+  .journey-summary {
+    max-width: 760px;
+    margin: 28px 0 0;
+    color: #cbd5e1;
+    font-size: clamp(1.08rem, 2.2vw, 1.35rem);
+    line-height: 1.75;
+  }
+
+  .journey-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 32px;
+  }
+
+  .journey-boundary {
+    max-width: 720px;
+    margin: 22px 0 0;
+    color: #94a3b8;
+    font-size: 0.92rem;
+    line-height: 1.65;
+  }
+
+  .journey-status {
+    padding: 26px;
+    border: 1px solid rgba(167, 139, 250, 0.24);
+    border-radius: 22px;
+    background: rgba(15, 23, 42, 0.72);
+    box-shadow: 0 28px 80px rgba(2, 6, 23, 0.3);
+  }
+
+  .journey-status__label {
+    color: #e2e8f0;
+    font-weight: 800;
+  }
+
+  .journey-status ol {
+    display: grid;
+    gap: 18px;
+    margin: 24px 0 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .journey-status li {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    gap: 13px;
+    align-items: center;
+    color: #cbd5e1;
+  }
+
+  .journey-status li strong {
+    display: grid;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border-radius: 999px;
+    background: rgba(124, 58, 237, 0.24);
+    color: #ddd6fe;
+  }
+
+  .journey-details {
+    padding: 72px 0;
+  }
+
+  .journey-details__grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+  }
+
+  .journey-card {
+    padding: 28px;
+    border: 1px solid rgba(148, 163, 184, 0.15);
+    border-radius: 18px;
+    background: rgba(15, 23, 42, 0.54);
+  }
+
+  .journey-card h2,
+  .journey-assurance h2 {
+    margin: 0 0 12px;
+    color: #f8fafc;
+    font-size: 1.28rem;
+  }
+
+  .journey-card p,
+  .journey-card li,
+  .journey-assurance p {
+    color: #aebbd0;
+    line-height: 1.7;
+  }
+
+  .journey-card ul {
+    display: grid;
+    gap: 9px;
+    margin: 18px 0 0;
+    padding-left: 20px;
+  }
+
+  .journey-assurance {
+    padding: 0 0 86px;
+  }
+
+  .journey-assurance__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 36px;
+    padding: 34px;
+    border: 1px solid rgba(96, 165, 250, 0.24);
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(30, 41, 59, 0.82), rgba(30, 27, 75, 0.58));
+  }
+
+  .journey-assurance__inner > div {
+    max-width: 760px;
+  }
+
+  .journey-footer {
+    border-top: 1px solid rgba(148, 163, 184, 0.14);
+    color: #94a3b8;
+  }
+
+  @media (max-width: 900px) {
+    .journey-hero__grid,
+    .journey-details__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .journey-assurance__inner {
+      align-items: flex-start;
+      flex-direction: column;
+    }
+  }
+
+  @media (max-width: 620px) {
+    .journey-nav__links {
+      gap: 12px;
+      font-size: 0.88rem;
+    }
+
+    .journey-hero {
+      padding-top: 64px;
+    }
+
+    .journey-actions .btn,
+    .journey-assurance .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .journey-footer__inner {
+      align-items: flex-start;
+      flex-direction: column;
+      padding-block: 24px;
+    }
+
+    .journey-footer nav {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+</style>
