@@ -1,0 +1,43 @@
+---
+import CommercialJourney from '../components/CommercialJourney.astro';
+
+const details = [
+  {
+    title: 'Early use-case signal',
+    body: 'Register what you are exploring before procurement or architecture decisions are complete.',
+    items: [
+      'A concise problem and use-case summary',
+      'Coordination capabilities under evaluation',
+      'Desired start window and current project stage',
+    ],
+  },
+  {
+    title: 'Commercial readiness',
+    body: 'Share enough context for a useful follow-up without completing the full enterprise application.',
+    items: [
+      'Organization profile and primary contact role',
+      'Budget band and preferred support level',
+      'Optional consent for relevant product updates',
+    ],
+  },
+  {
+    title: 'Safe follow-up',
+    body: 'The registration creates an intake record and a human-review path, not an account or a contract.',
+    items: [
+      'No infrastructure capacity is reserved',
+      'No service-level or compliance promise is created',
+      'No password, token, private key, connection string, or production sample is accepted',
+    ],
+  },
+];
+---
+
+<CommercialJourney
+  eyebrow="Low-friction evaluation entry"
+  title="Register pre-interest in Fiducia"
+  summary="Tell the team which coordination problem you are evaluating, when you may need it, and what level of support you expect—without completing procurement paperwork first."
+  destination="https://user.fiducia.cloud/pre-interest"
+  primaryLabel="Open the secure interest form"
+  details={details}
+  note="A pre-interest registration records evaluation context and communication preferences only. It does not create a customer account, order, reservation, SLA, or obligation to purchase or provide service."
+/>
