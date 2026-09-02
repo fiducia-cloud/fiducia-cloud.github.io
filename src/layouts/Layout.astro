@@ -21,8 +21,10 @@ const base = import.meta.env.BASE_URL.replace(/\/+$/, '') + '/';
 
 // The static GitHub Pages site only delegates users to routes already owned by
 // the Rust customer app. Shared Auth, Supabase, cookies, MFA, and session
-// rotation stay server-side.
+// rotation stay server-side. Commercial-intake discovery remains static and
+// routes protected submissions to user.fiducia.cloud.
 const accountRoutes = {
+  getStarted: `${base}get-started/`,
   login: 'https://app.fiducia.cloud/login',
   signup: 'https://app.fiducia.cloud/app/signup',
   dashboard: 'https://app.fiducia.cloud/app/dashboard',
@@ -61,6 +63,7 @@ const accountRoutes = {
           Customer console
         </span>
         <nav class="account-bar__actions" aria-label="Account">
+          <a class="account-bar__link account-bar__link--login" href={accountRoutes.getStarted}>Get started</a>
           <a class="account-bar__link account-bar__link--login" href={accountRoutes.login}>Log in</a>
           <a class="account-bar__link account-bar__link--signup" href={accountRoutes.signup}>Sign up</a>
           <a class="account-bar__link account-bar__link--dashboard" href={accountRoutes.dashboard}>Dashboard</a>
