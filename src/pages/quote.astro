@@ -1,0 +1,43 @@
+---
+import CommercialJourney from '../components/CommercialJourney.astro';
+
+const details = [
+  {
+    title: 'Workload profile',
+    body: 'Describe the intended coordination workload without exposing production data or secrets.',
+    items: [
+      'Locks, leases, semaphores, elections, KV, scheduling, discovery, rate limits, and task claims',
+      'Managed, dedicated, customer-cloud, Kubernetes, hybrid, or evaluation deployment preference',
+      'Environment count, average and peak operations per second, payload size, and retention',
+    ],
+  },
+  {
+    title: 'Operating assistance',
+    body: 'Select the level of implementation and support help that should be included in the estimate.',
+    items: [
+      'Community, standard, priority, enterprise, or custom support preference',
+      'Onboarding, architecture review, migration assistance, and training',
+      'Business-hours, 24×5, or 24×7 coverage for qualification',
+    ],
+  },
+  {
+    title: 'Estimate boundary',
+    body: 'The returned range is an evaluation aid rather than an accepted commercial commitment.',
+    items: [
+      'Deterministic calculation from disclosed sizing and support selections',
+      'Versioned assumptions and an explicit validity date',
+      'No offer, capacity reservation, certification, service credit, or contractual SLA',
+    ],
+  },
+];
+---
+
+<CommercialJourney
+  eyebrow="Non-binding planning estimate"
+  title="Request a Fiducia quote"
+  summary="Model deployment, scale, coordination capabilities, retention, onboarding, support, and budget expectations before a full enterprise application."
+  destination="https://user.fiducia.cloud/quote"
+  primaryLabel="Open the secure quote form"
+  details={details}
+  note="The quote range is generated from the disclosed evaluation profile. Final pricing, capacity, support, security terms, and service levels require technical qualification, commercial approval, and a signed order form."
+/>
