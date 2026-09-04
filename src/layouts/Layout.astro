@@ -4,6 +4,7 @@
 // <slot />. Authentication remains entirely on app.fiducia.cloud.
 import '../styles/global.css';
 import '../styles/account-nav.css';
+import AnnouncementBar from '../components/AnnouncementBar.astro';
 
 interface Props {
   title?: string;
@@ -56,6 +57,13 @@ const accountRoutes = {
     <meta property="og:type" content="website" />
   </head>
   <body>
+    <AnnouncementBar
+      storageKey="site-announcement:fiducia-cloud:v1"
+      message="Happy 2026, y’all!"
+      href={`${base}use-cases/`}
+      linkLabel="See what we’re building"
+      tone="cyan"
+    />
     <header class="account-bar">
       <div class="account-bar__inner container">
         <span class="account-bar__context">
