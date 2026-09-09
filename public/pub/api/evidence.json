@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schema": "fiducia.public-api.maintained-lock-evidence/v1",
+  "implementation": {
+    "repository": "ORESoftware/ores-locks-and-leases",
+    "revision": "091a61558b52ae4f953222d8ee55e2a267195d09",
+    "pullRequest": 26,
+    "promotionState": "candidate"
+  },
+  "validator": {
+    "repository": "ORESoftware/typespec-json-schema-validator",
+    "revision": "dfc28bfc000faba5a963f23c708171dfd5f8debf",
+    "parityCommand": "tjsv check",
+    "contractIrCommand": "tjsv verify-ir",
+    "languageBoundaryVerifier": "verifyLanguageBoundaries"
+  },
+  "authorityModel": {
+    "typeSpec": "independently-authored-peer",
+    "jsonSchema": "independently-authored-peer",
+    "generatedSchemaB": "comparison-evidence-only",
+    "contractIr": "derived-evidence-only",
+    "precedence": "none"
+  },
+  "requiredLanguages": [
+    "rust",
+    "go",
+    "typescript",
+    "dart",
+    "gleam"
+  ],
+  "route": "https://fiducia.cloud/pub/api",
+  "tracking": "DEN-2050"
+}
