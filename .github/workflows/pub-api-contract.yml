@@ -1,0 +1,104 @@
+name: Public maintained-lock API contract
+
+on:
+  pull_request:
+    paths:
+      - 'src/pages/pub/api.astro'
+      - 'public/pub/api/evidence.json'
+      - 'tests/site-api-docs.test.mjs'
+      - 'package.json'
+      - '.github/workflows/pub-api-contract.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'src/pages/pub/api.astro'
+      - 'public/pub/api/evidence.json'
+      - 'tests/site-api-docs.test.mjs'
+      - 'package.json'
+      - '.github/workflows/pub-api-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pub-api-contract-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  EXPECTED_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  contract:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out exact public-site head
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.EXPECTED_SHA }}
+          persist-credentials: false
+          fetch-depth: 1
+          show-progress: false
+
+      - name: Verify exact public-site head
+        run: test "$(git rev-parse HEAD)" = "$EXPECTED_SHA"
+
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with: { node-version: '22' }
+
+      - name: Validate public API source and evidence contract
+        run: node --test tests/site-api-docs.test.mjs
+
+      - name: Read immutable implementation and validator revisions
+        id: evidence
+        run: |
+          node - <<'NODE' >> "$GITHUB_OUTPUT"
+          import { readFileSync } from "node:fs";
+          const evidence = JSON.parse(readFileSync("public/pub/api/evidence.json", "utf8"));
+          console.log(`lock_revision=${evidence.implementation.revision}`);
+          console.log(`validator_revision=${evidence.validator.revision}`);
+          NODE
+
+      - name: Check out exact lock implementation evidence
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ORESoftware/ores-locks-and-leases
+          ref: ${{ steps.evidence.outputs.lock_revision }}
+          path: upstream-locks
+          persist-credentials: false
+          fetch-depth: 1
+          show-progress: false
+
+      - name: Verify immutable upstream runtime-boundary source
+        working-directory: upstream-locks
+        env:
+          LOCK_REVISION: ${{ steps.evidence.outputs.lock_revision }}
+          VALIDATOR_REVISION: ${{ steps.evidence.outputs.validator_revision }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$LOCK_REVISION"
+          test -f scripts/verify-language-runtime-boundaries.mjs
+          node --check scripts/verify-language-runtime-boundaries.mjs
+          grep -F 'verifyLanguageBoundaries' scripts/verify-language-runtime-boundaries.mjs >/dev/null
+          grep -F "$VALIDATOR_REVISION" scripts/verify-language-runtime-boundaries.mjs >/dev/null
+
+      - name: Re-run TypeSpec and JSON Schema peer-authority admission
+        working-directory: upstream-locks
+        env:
+          VALIDATOR_REVISION: ${{ steps.evidence.outputs.validator_revision }}
+        run: |
+          tmp="scripts/.check-tjsv-contracts-pub-api-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}.sh"
+          trap 'rm -f -- "$tmp"' EXIT
+          sed "s/^validator_commit=.*/validator_commit=$VALIDATOR_REVISION/" \
+            scripts/check-tjsv-contracts.sh > "$tmp"
+          chmod +x "$tmp"
+          sh "$tmp" all
+
+      - name: Retain public API TJSV evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: pub-api-tjsv-${{ env.EXPECTED_SHA }}
+          path: upstream-locks/target/tjsv/
+          if-no-files-found: error
+          retention-days: 30
