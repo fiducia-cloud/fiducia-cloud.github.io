@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Static Astro site image.
-FROM node:26-slim@sha256:14bf3eac4bf209d906d3c41256597d3ab1f926b2e93a79e9bdfe1efd32454239 AS build
+FROM node:26-slim@sha256:3a771f83944bb763050c23c0225c260638c4b7899e7a72485ef75e5e570499e5 AS build
 RUN apt-get update \
     && apt-get install -y --no-install-recommends ca-certificates git
 
