@@ -2,11 +2,13 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import { extname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 const source = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
 async function filesBelow(directory) {
+  const root = directory instanceof URL ? fileURLToPath(directory) : directory;
   const results = [];
-  for (const entry of await readdir(directory, { withFileTypes: true })) {
-    const path = join(directory, entry.name);
+  for (const entry of await readdir(root, { withFileTypes: true })) {
+    const path = join(root, entry.name);
     if (entry.isDirectory()) results.push(...await filesBelow(path)); else results.push(path);
   }
   return results;
@@ -33,6 +35,13 @@ test('workflow builds and verifies the integration', async () => {
   const workflow = await source('.github/workflows/owls-loader.yml');
   assert.match(workflow, /npm ci/);
   assert.match(workflow, /npm run build/);
+});
+test('filesBelow traverses equivalently from a file URL or filesystem path', async () => {
+  const directoryUrl = new URL('./', import.meta.url);
+  const fromUrl = await filesBelow(directoryUrl);
+  const fromPath = await filesBelow(fileURLToPath(directoryUrl));
+  assert.deepEqual(fromUrl, fromPath);
+  assert.ok(fromUrl.some((path) => path.endsWith('owls-loader.test.mjs')));
 });
 test('static output contains the base-aware page bootstrap', async () => {
   const files = await filesBelow(new URL('../dist/', import.meta.url));
